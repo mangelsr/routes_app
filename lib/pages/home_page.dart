@@ -6,6 +6,10 @@ import 'package:routes_app/bloc/map/map_bloc.dart';
 import 'package:routes_app/bloc/my_location/my_location_bloc.dart';
 import 'package:routes_app/widgets/widgets.dart';
 
+import '../bloc/map/map_bloc.dart';
+import '../bloc/my_location/my_location_bloc.dart';
+import '../widgets/widgets.dart';
+
 class HomePage extends StatefulWidget {
   @override
   _HomePageState createState() => _HomePageState();
@@ -27,13 +31,24 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: BlocBuilder<MyLocationBloc, MyLocationState>(
-        builder: (_, MyLocationState state) => buildMap(state),
+      body: Stack(
+        children: [
+          BlocBuilder<MyLocationBloc, MyLocationState>(
+            builder: (_, MyLocationState state) => buildMap(state),
+          ),
+          Positioned(
+            top: 15,
+            child: SearchBar(),
+          ),
+          ManualMarker(),
+        ],
       ),
       floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          LocationBtn()
+          LocationBtn(),
+          FollowLocationBtn(),
+          MyRouteBtn(),
         ],
       ),
     );
@@ -41,19 +56,25 @@ class _HomePageState extends State<HomePage> {
 
   Widget buildMap(MyLocationState state) {
     if (!state.haveLastLocation) return Center(child: Text('Locating...'));
-    
+
     final mapBloc = BlocProvider.of<MapBloc>(context);
 
-    final initialPositon = CameraPosition(
-      target: state.location,
-      zoom: 15
-    );
-    return GoogleMap(
-      initialCameraPosition: initialPositon,
-      myLocationEnabled: true,
-      myLocationButtonEnabled: false,
-      zoomControlsEnabled: false,
-      onMapCreated: mapBloc.initMap,
-    );
+    mapBloc.add(OnLocationUpdated(state.location));
+
+    final initialPositon = CameraPosition(target: state.location, zoom: 15);
+
+    return BlocBuilder<MapBloc, MapState>(
+        builder: (BuildContext context, MapState state) {
+      return GoogleMap(
+        initialCameraPosition: initialPositon,
+        myLocationEnabled: true,
+        myLocationButtonEnabled: false,
+        zoomControlsEnabled: false,
+        onMapCreated: mapBloc.initMap,
+        polylines: mapBloc.state.polyLines.values.toSet(),
+        onCameraMove: (CameraPosition cameraPosition) =>
+            mapBloc.add(OnMapMoved(cameraPosition.target)),
+      );
+    });
   }
 }
