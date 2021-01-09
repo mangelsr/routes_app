@@ -2,10 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:bloc/bloc.dart';
-import 'package:flutter/material.dart' show Colors;
+import 'package:flutter/material.dart' show Colors, Offset;
 
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:meta/meta.dart';
+import 'package:routes_app/helpers/helpers.dart';
 
 import 'package:routes_app/themes/map_theme.dart';
 
@@ -98,6 +99,55 @@ class MapBloc extends Bloc<MapEvent, MapState> {
 
     final currentPolylines = state.polyLines;
     currentPolylines['my_destiny_route'] = this._myDestinyRoute;
-    yield state.copyWith(polyLines: currentPolylines);
+
+    final double distanceInKm =
+        (((event.distance / 1000) * 100).floor().toDouble()) / 100;
+
+    // Start Icon
+    // final BitmapDescriptor assetsIcon = await getAssetImageMarker();
+    final BitmapDescriptor startIcon =
+        await getStartMarkerIcon(event.duration.toInt());
+    // final BitmapDescriptor networkIcon = await getNetworkImageMarker();
+    final BitmapDescriptor endIcon =
+        await getEndtMarkerIcon(event.destinyName, distanceInKm);
+
+    //Markers
+    final startMarker = Marker(
+      markerId: MarkerId('start'),
+      position: event.route.first,
+      icon: startIcon,
+      anchor: Offset(0.0, 1.0),
+      infoWindow: InfoWindow(
+        title: 'Start location',
+        snippet: 'Trip time: ${(event.duration / 60).floor()} min',
+      ),
+    );
+
+    final endMarker = Marker(
+      markerId: MarkerId('end'),
+      position: event.route.last,
+      icon: endIcon,
+      anchor: Offset(0.0, 0.8),
+      infoWindow: InfoWindow(
+        title: event.destinyName,
+        snippet: 'Distance: $distanceInKm Km',
+      ),
+    );
+
+    // final Map newMarkers = Map.from(state.markers);
+    final Map<String, Marker> newMarkers = {...state.markers};
+    newMarkers['start'] = startMarker;
+    newMarkers['end'] = endMarker;
+
+    Future.delayed(Duration(milliseconds: 300)).then((value) {
+      // Can't open more than one InfoWindow at same time
+      // _mapController.showMarkerInfoWindow(MarkerId('start'));
+      // _mapController.showMarkerInfoWindow(MarkerId('end'));
+    });
+
+    yield state.copyWith(
+      polyLines: currentPolylines,
+      markers: newMarkers,
+    );
   }
 }

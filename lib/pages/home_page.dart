@@ -72,6 +72,7 @@ class _HomePageState extends State<HomePage> {
         zoomControlsEnabled: false,
         onMapCreated: mapBloc.initMap,
         polylines: mapBloc.state.polyLines.values.toSet(),
+        markers: mapBloc.state.markers.values.toSet(),
         onCameraMove: (CameraPosition cameraPosition) =>
             mapBloc.add(OnMapMoved(cameraPosition.target)),
       );

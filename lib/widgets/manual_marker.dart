@@ -84,15 +84,22 @@ class _BuildManualMarker extends StatelessWidget {
     final RouteResponse result = await routeService.getRoute(start, end);
     final route = result.routes[0];
 
+    // Get end point info
+    final LocationInfoResponse info = await routeService.getLocationInfo(end);
+
     // Geometry decode
     final List<LatLng> points =
         Poly.Polyline.Decode(encodedString: route.geometry, precision: 6)
             .decodedCoords
             .map((List<double> e) => LatLng(e[0], e[1]))
             .toList();
-    context
-        .read<MapBloc>()
-        .add(OnDrawRoute(points, route.distance, route.duration));
+
+    context.read<MapBloc>().add(OnDrawRoute(
+          points,
+          route.distance,
+          route.duration,
+          info.features.first.text,
+        ));
 
     context.read<SearchBloc>().add(OnManualMarkerDeactivation());
 

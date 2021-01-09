@@ -8,6 +8,7 @@ import 'package:routes_app/bloc/map/map_bloc.dart';
 import 'package:routes_app/bloc/my_location/my_location_bloc.dart';
 import 'package:routes_app/bloc/search/search_bloc.dart';
 import 'package:routes_app/helpers/helpers.dart';
+import 'package:routes_app/models/location_info_response.dart';
 import 'package:routes_app/models/route_response.dart';
 import 'package:routes_app/models/search_result.dart';
 import 'package:routes_app/search/search_destination.dart';

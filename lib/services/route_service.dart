@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart' show LatLng;
 import 'package:routes_app/helpers/debouncer.dart';
+import 'package:routes_app/models/location_info_response.dart';
 import 'package:routes_app/models/route_response.dart';
 import 'package:routes_app/models/search_response.dart';
 
@@ -67,5 +68,15 @@ class RouteService {
         Duration(milliseconds: 200), (_) => debouncer.value = query);
 
     Future.delayed(Duration(milliseconds: 201)).then((_) => timer.cancel());
+  }
+
+  Future<LocationInfoResponse> getLocationInfo(LatLng location) async {
+    final coordsString = '${location.longitude},${location.latitude}';
+    final url = '${this._BASE_URL_GEO}/mapbox.places/$coordsString.json';
+    final response = await this._dio.get(url, queryParameters: {
+      'access_token': this._API_KEY,
+    });
+
+    return locationInfoResponseFromJson(response.data);
   }
 }

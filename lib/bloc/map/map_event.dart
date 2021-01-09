@@ -23,5 +23,6 @@ class OnDrawRoute extends MapEvent {
   final List<LatLng> route;
   final double distance;
   final double duration;
-  OnDrawRoute(this.route, this.distance, this.duration);
+  final String destinyName;
+  OnDrawRoute(this.route, this.distance, this.duration, this.destinyName);
 }
