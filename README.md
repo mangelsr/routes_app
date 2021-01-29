@@ -17,3 +17,10 @@ App Features:
 This app consumes Google Maps and Mapbox API, so to test it you need to includes yours.
 
 The app has configured Google Maps to run in android, iOS is not configured.
+
+## Screenshots
+### Main screen
+![alt text](screenshots/main.png "Mainpage")
+
+### Search sceen
+![alt text](screenshots/search.png "Search")
